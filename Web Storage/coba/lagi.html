@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book List</title>
+    <style>
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Book List</h1>
+    <form id="book-form">
+        <input type="text" id="book-title" placeholder="Title" required>
+        <input type="text" id="book-author" placeholder="Author" required>
+        <input type="number" id="book-year" placeholder="Year" required>
+        <input type="checkbox" id="book-isComplete" checked>
+        <button type="submit">Add Book</button>
+    </form>
+    <ul id="book-list"></ul>
+
+    <script>
+        // Get the book form and book list
+        const bookForm = document.getElementById('book-form');
+        const bookList = document.getElementById('book-list');
+
+        // Initialize books from local storage or an empty array
+        let books = JSON.parse(localStorage.getItem('books')) || [];
+
+        // Function to render books in the list
+        function renderBooks() {
+            bookList.innerHTML = '';
+            books.forEach((book, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    Title: ${book.title}<br>
+                    Author: ${book.author}<br>
+                    Year: ${book.year}<br>
+                    Is Complete: ${book.isComplete ? 'Yes' : 'No'}<br>
+                    <button onclick="editBook(${index})">Edit</button>
+                    <button onclick="deleteBook(${index})">Delete</button>
+                `;
+                bookList.appendChild(li);
+            });
+        }
+
+        // Function to add a new book
+        function addBook(book) {
+            books.push(book);
+            localStorage.setItem('books', JSON.stringify(books));
+            renderBooks();
+        }
+
+        // ...
+function editBook(index) {
+    const book = books[index];
+
+    const updatedTitle = prompt('Edit Title:', book.title);
+    const updatedAuthor = prompt('Edit Author:', book.author);
+    const updatedYear = prompt('Edit Year:', book.year);
+    const updatedIsComplete = confirm('Is it complete?');
+
+    if (updatedTitle !== null && updatedAuthor !== null && updatedYear !== null) {
+        // Update the book object
+        book.title = updatedTitle;
+        book.author = updatedAuthor;
+        book.year = parseInt(updatedYear);
+        book.isComplete = updatedIsComplete;
+
+        localStorage.setItem('books', JSON.stringify(books));
+        renderBooks();
+    }
+}
+// ...
+
+
+        // Function to delete a book
+        function deleteBook(index) {
+            if (confirm('Are you sure you want to delete this book?')) {
+                books.splice(index, 1);
+                localStorage.setItem('books', JSON.stringify(books));
+                renderBooks();
+            }
+        }
+
+        // Event listener for the book form
+        bookForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const titleInput = document.getElementById('book-title');
+            const authorInput = document.getElementById('book-author');
+            const yearInput = document.getElementById('book-year');
+            const isCompleteInput = document.getElementById('book-isComplete');
+            
+            const newBook = {
+                title: titleInput.value.trim(),
+                author: authorInput.value.trim(),
+                year: parseInt(yearInput.value),
+                isComplete: isCompleteInput.checked,
+            };
+            
+            if (newBook.title !== '' && newBook.author !== '') {
+                addBook(newBook);
+                titleInput.value = '';
+                authorInput.value = '';
+                yearInput.value = '';
+                isCompleteInput.checked = true;
+            }
+        });
+
+        // Initial rendering of books
+        renderBooks();
+    </script>
+</body>
+</html>
